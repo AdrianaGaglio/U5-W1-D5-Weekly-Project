@@ -31,12 +31,12 @@ public class Operations {
         String username = scanner.nextLine();
         u.setLastName(username.isEmpty() ? u.getUsername() : username);
         User updated = userService.update(u);
-        System.out.println(color.BLUE + "User info updated: " + updated + color.RESET);
+        System.out.println(color.GREEN + "User info updated successfully: " + updated + color.RESET);
     }
 
     public static void deleteUser(UserService userService, User u, ColorConfiguration.ConsoleColors color) {
         userService.delete(u);
-        System.out.println(color.BLUE + "User deleted: " + u + color.RESET);
+        System.out.println(color.GREEN + "User deleted successfully: " + u + color.RESET);
     }
 
     public static void editBuilding(Scanner scanner, BuildingService buildingService, Building b, ColorConfiguration.ConsoleColors color) {
@@ -55,7 +55,7 @@ public class Operations {
 
     public static void deleteBuilding(BuildingService buildingService, Building b, ColorConfiguration.ConsoleColors color) {
         buildingService.delete(b);
-        System.out.println(color.BLUE + "Building deleted: " + b + color.RESET);
+        System.out.println(color.GREEN + "Building deleted successfully: " + b + color.RESET);
     }
 
     public static void editStation(Scanner scanner, StationService stationService, Station s, ColorConfiguration.ConsoleColors color) {
@@ -85,7 +85,7 @@ public class Operations {
 
     public static void deleteStation(StationService stationService, Station s, ColorConfiguration.ConsoleColors color) {
         stationService.delete(s);
-        System.out.println(color.BLUE + "Station deleted: " + s + color.RESET);
+        System.out.println(color.GREEN + "Station deleted successfully: " + s + color.RESET);
     }
 
     public static void editReservation(Scanner scanner, ReservationService reservationService, Reservation r, ColorConfiguration.ConsoleColors color) {
@@ -102,7 +102,7 @@ public class Operations {
 
     public static void deleteReservation(ReservationService reservationService, Reservation r, ColorConfiguration.ConsoleColors color) {
         reservationService.delete(r);
-        System.out.println(color.BLUE + "Reservation deleted: " + r + color.RESET);
+        System.out.println(color.GREEN + "Reservation deleted successfully: " + r + color.RESET);
     }
 
     public static LocalDate formatDate(Scanner scanner, ColorConfiguration.ConsoleColors color) throws Exception {
