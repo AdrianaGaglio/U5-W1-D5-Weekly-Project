@@ -49,8 +49,6 @@ public class ApplicationRunner implements org.springframework.boot.ApplicationRu
                 }
             } catch (Exception e) {
                 System.out.println(consoleColors.RED + e.getMessage() + consoleColors.RESET);
-            } finally {
-                scanner.close();
             }
         }
 
