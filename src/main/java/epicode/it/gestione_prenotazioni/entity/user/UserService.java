@@ -2,6 +2,7 @@ package epicode.it.gestione_prenotazioni.entity.user;
 
 
 import epicode.it.gestione_prenotazioni.entity.reservation.Reservation;
+import epicode.it.gestione_prenotazioni.entity.reservation.ReservationService;
 import epicode.it.gestione_prenotazioni.entity.station.Station;
 import epicode.it.gestione_prenotazioni.entity.station.StationService;
 import epicode.it.gestione_prenotazioni.exceptions.NotFoundException;
@@ -21,6 +22,7 @@ public class UserService {
     private final ObjectProvider<User> userProvider;
     private final UserRepo userRepo;
     private final StationService stationService;
+    private final ReservationService reservationService;
 
     public User generateUser() {
         User newUser = userProvider.getObject();
@@ -68,8 +70,10 @@ public class UserService {
         return u;
     }
 
-    public List<User> findByFirstNameAndLastName(String firstName, String lastName) {
-        return userRepo.findByFirstNameAndLastNameIgnoreCase(firstName, lastName);
+    public List<User> findByFirstNameAndLastName(String firstName, String lastName) throws NotFoundException {
+        List<User> users = userRepo.findByFirstNameAndLastNameLikeIgnoreCase(firstName, lastName);
+        if(users == null || users.size() == 0) throw new NotFoundException("No users found");
+        return users;
     }
 
     public User delete(Long id) throws NotFoundException {
@@ -81,9 +85,11 @@ public class UserService {
     public User delete(User user) {
         User managedUser = userRepo.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+        for (Reservation reservation : managedUser.getReservations()) {
+            reservation.setUser(null); // Scollega l'utente dalla prenotazione
+            reservationService.delete(reservation); // Elimina la prenotazione
+        }
         userRepo.delete(managedUser);
-
         return user;
     }
 

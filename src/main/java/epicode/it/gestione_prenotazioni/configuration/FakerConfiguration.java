@@ -11,6 +11,6 @@ public class FakerConfiguration {
 
     @Bean
     public Faker getFaker() {
-        return new Faker();
+        return new Faker(new Locale("it"));
     }
 }

@@ -5,6 +5,7 @@ import epicode.it.gestione_prenotazioni.entity.station.Station;
 import epicode.it.gestione_prenotazioni.entity.station.StationService;
 import epicode.it.gestione_prenotazioni.exceptions.NotFoundException;
 import epicode.it.gestione_prenotazioni.exceptions.UnavailableBuildingName;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
@@ -80,11 +81,28 @@ public class BuildingService {
         return building;
     }
 
+    @Transactional
     public Building delete(Building building) {
         Building managedBuilding = buildingRepo.findById(building.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Building not found"));
 
+
+        for (Station station : managedBuilding.getStations()) {
+            // Rimuovi le associazioni tra Station e Reservation
+            station.getReservations().forEach(reservation -> reservation.setStation(null));
+            station.getReservations().clear(); // Svuota la lista di Reservations
+
+            // Scollega la Station dal Building
+            station.setBuilding(null);
+            stationService.delete(station); // Elimina la Station
+        }
+
+        managedBuilding.getStations().clear();
+
+
         buildingRepo.delete(managedBuilding);
+
+
         return building;
     }
 

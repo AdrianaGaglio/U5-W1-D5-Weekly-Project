@@ -12,7 +12,6 @@ import epicode.it.gestione_prenotazioni.entity.user.User;
 import epicode.it.gestione_prenotazioni.entity.user.UserService;
 import epicode.it.gestione_prenotazioni.exceptions.*;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,23 +20,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class Menu {
-
-    public static void printMenu() {
-        System.out.println(" === Menu ===");
-        System.out.println("1. Create new user");
-        System.out.println("2. Create new building");
-        System.out.println("3. Create new station");
-        System.out.println("4. Generate new reservation");
-        System.out.println("5. Show all users");
-        System.out.println("6. Show all buildings");
-        System.out.println("7. Show all stations");
-        System.out.println("8. Show all reservations");
-        System.out.println("9. Search station");
-        System.out.println("0. Exit");
-        System.out.println("==================");
-        System.out.println("Choose an option to proceed: ");
-    }
+public class MenuItems {
 
     public static void createUser(Scanner scanner, UserService userService, ColorConfiguration.ConsoleColors color) throws Exception {
         while (true) {
@@ -62,12 +45,12 @@ public class Menu {
                 user.setUsername(username);
                 user.setEmail(email);
                 user = userService.save(user);
-                System.out.println(color.BLUE + " ===> User " + user.getUsername() + " created successfully" + color.RESET);
+                System.out.println(color.GREEN + "===> User " + user.getUsername() + " - " + user.getFirstName() + " " + user.getLastName() + " created successfully" + color.RESET);
                 return;
             } catch (UnavailableUsername e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -90,12 +73,12 @@ public class Menu {
                 building.setCity(city);
                 building.setAddress(address);
                 building = buildingService.save(building);
-                System.out.println(color.BLUE + " ===> Building " + building.getName() + " created successfully" + color.RESET);
+                System.out.println(color.GREEN + " ===> Building " + building.getName() + " - "+ building.getCity() + " created successfully" + color.RESET);
                 return;
             } catch (UnavailableBuildingName e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -105,15 +88,17 @@ public class Menu {
         List<Building> buildings = buildingService.findAll();
         mainLoop:
         while (true) {
-            System.out.println("List of available buildings:");
-            buildings.forEach(System.out::println);
+            System.out.println(color.BLUE +"List of available buildings:" + color.RESET);
+            for (Building b : buildings) {
+                System.out.println(color.BLUE + "Building id: " + b.getId() + " - Name: " + b.getName() + " - City: " + b.getCity() + " - Address: " + b.getAddress() + color.RESET);
+            }
             System.out.println("Select building id to insert new station (0 to exit):");
             try {
                 Long id = scanner.nextLong();
                 scanner.nextLine(); // Consuma la nuova linea
                 if (id == 0) break;
                 Building b = buildingService.findById(id);
-                System.out.println(color.BLUE + "Selected building: " + b.getName() + color.RESET);
+                System.out.println(color.BLUE + "Selected building: " + "Id: " + b.getId() + " - Name: " + b.getName() + " - City: " + b.getCity() + " - Address: " + b.getAddress() + color.RESET);
 
                 Station s = new Station();
 
@@ -141,25 +126,25 @@ public class Menu {
                     case 2 -> s.setType(Type.MEETING_ROOM);
                     case 3 -> s.setType(Type.OPENSPACE);
                     case 0 -> {
-                        System.out.println(color.RED + "Exiting..." + color.RESET);
+                        System.out.println(color.RED + "===> Exiting..." + color.RESET);
                         break mainLoop;
                     }
                     default -> {
-                        System.out.println(color.RED + "Invalid input. Please try again." + color.RESET);
+                        System.out.println(color.RED + "===> Invalid input. Please try again." + color.RESET);
                         continue;
                     }
                 }
 
                 stationService.saveIntoBuilding(b, s);
-                System.out.println(color.BLUE + "Station saved successfully!" + color.RESET);
+                System.out.println(color.GREEN + "Station saved successfully!" + " Code: " + s.getCode() + " - Type: " + s.getType() + color.RESET);
                 return;
             } catch (NotFoundException | UnavailableCode e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
             } catch (InputMismatchException e) {
-                System.out.println(color.RED + "Invalid input. Please enter a valid number." + color.RESET);
+                System.out.println(color.RED + "===> Invalid input. Please enter a valid number." + color.RESET);
                 scanner.nextLine(); // Pulisce il buffer dello scanner
             } catch (Exception e) {
-                System.out.println(color.RED + "An unexpected error occurred: " + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> An unexpected error occurred: " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -167,7 +152,9 @@ public class Menu {
     public static void createReservation(Scanner scanner, UserService userService, StationService stationService, ReservationService reservationService, ColorConfiguration.ConsoleColors color) {
         List<User> users = userService.findAll();
         while (true) {
-            users.forEach(System.out::println);
+            for (User u : users) {
+                System.out.println(color.BLUE + "User id " + u.getId() + " - Username:" + u.getUsername() + " - Email: "+ u.getEmail() + " - First name: " + u.getFirstName() + " - Last name: " + u.getLastName() + color.RESET);
+            }
             System.out.println("Select user for new reservation (0 to exit):");
             Long id = scanner.nextLong();
             scanner.nextLine();
@@ -178,7 +165,10 @@ public class Menu {
                 String city = scanner.nextLine();
                 if (city.equals(0)) break;
                 if (city.isEmpty()) throw new Exception("Invalid input");
-                stationService.findByCity(city).forEach(System.out::println);
+                if(stationService.findByCity(city).isEmpty()) throw new NotFoundException("There are no stations in this city");
+                for(Station s : stationService.findByCity(city)) {
+                    System.out.println(color.BLUE + "Station id " + s.getId() + " - Code: " + s.getCode() + " - Type: " + s.getType() + " - Max occupants: " + s.getMaxOccupants() + color.RESET);
+                }
                 System.out.println("Select the station (0 to exit):");
                 Long opt = null;
                 opt = scanner.nextLong();
@@ -186,7 +176,7 @@ public class Menu {
                 if (opt == null) throw new Exception("Invalid input");
                 if (opt == 0) break;
                 Station s = stationService.findById(opt);
-                System.out.println(color.BLUE + "Station " + s.getCode() + " selected" + color.RESET);
+                System.out.println(color.BLUE + "Station selected - Code: " + s.getCode() + " - Type: " + s.getType() + " - Max occupants: " + s.getMaxOccupants() + color.RESET);
                 System.out.println("Insert number of partecipants (0 to exit):");
                 Integer partecipants = null;
                 partecipants = scanner.nextInt();
@@ -195,19 +185,14 @@ public class Menu {
                 if (partecipants == 0) break;
                 Reservation r = new Reservation();
                 System.out.println("In which date you want to book the station: (0 to exit)?");
-                String inputDate = scanner.nextLine();
-                if (inputDate.isEmpty()) throw new Exception("Invalid input");
-                if (inputDate.equals("0")) break;
-                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate date = LocalDate.parse(inputDate, inputFormatter);
+                LocalDate date = Operations.formatDate(scanner, color);
                 Reservation reservation = reservationService.createNewReservation(u, s, date, partecipants);
-                System.out.println(color.BLUE + "=> Reservation saved successfully" + reservation + color.RESET);
+                System.out.println(color.GREEN + "===> Reservation saved successfully - Date: " + reservation.getDate() + " - User: " + reservation.getUser().getUsername() + color.RESET);
                 return;
             } catch (NotFoundException | PastDateException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
 
         }
@@ -215,8 +200,10 @@ public class Menu {
 
     public static void showUsers(Scanner scanner, UserService userService, ColorConfiguration.ConsoleColors color) throws NotFoundException, Exception {
         while (true) {
-            System.out.println("List of all users :" + userService.count());
-            userService.findAll().forEach(System.out::println);
+            System.out.println("List of all users:" + userService.count());
+            for(User u : userService.findAll()) {
+                System.out.println(color.BLUE + "User id " + u.getId() + " - Username: " + u.getUsername() + " - Email: " + u.getEmail() + " - First name: " + u.getFirstName() + " - Last name: " + u.getLastName() + color.RESET);
+            }
             try {
                 System.out.println("Select user to proceed (0 to exit):");
                 Long id = null;
@@ -225,7 +212,7 @@ public class Menu {
                 if (id == null) throw new Exception("Invalid input");
                 if (id == 0) break;
                 User u = userService.findById(id);
-                System.out.println(color.BLUE + "Selected user " + u + color.RESET);
+                System.out.println(color.BLUE + "Selected user - Id: " + u.getId() + " - Username:" + u.getUsername() + " - Email: "+ u.getEmail() + " - First name: " + u.getFirstName() + " - Last name: " + u.getLastName() + color.RESET);
                 System.out.println("What do you want to do now?");
                 System.out.println("1-Edit user info 2-Delete user 0-Exit");
                 Integer opt = null;
@@ -235,39 +222,27 @@ public class Menu {
                 if (opt == 0) break;
                 switch (opt) {
                     case 1 -> {
-                        System.out.println("New user email (empty if no changes are required)");
-                        String mail = scanner.nextLine();
-                        u.setEmail(mail.isEmpty() ? u.getEmail() : mail);
-                        System.out.println("New user first name (empty if no changes are required)");
-                        String name = scanner.nextLine();
-                        u.setFirstName(name.isEmpty() ? u.getFirstName() : name);
-                        System.out.println("New user last name (empty if no changes are required)");
-                        String surname = scanner.nextLine();
-                        u.setLastName(surname.isEmpty() ? u.getLastName() : surname);
-                        System.out.println("New user username (empty if no changes are required)");
-                        String username = scanner.nextLine();
-                        u.setLastName(username.isEmpty() ? u.getUsername() : username);
-                        User updated = userService.update(u);
-                        System.out.println(color.BLUE + "User info updated: " + updated + color.RESET);
+                        Operations.editUser(scanner, userService, u, color);
                     }
                     case 2 -> {
-                        userService.delete(u);
-                        System.out.println(color.BLUE + "User deleted: " + u + color.RESET);
+                        Operations.deleteUser(userService, u, color);
                     }
                 }
                 return;
             } catch (NotFoundException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
 
     public static void showBuildings(Scanner scanner, BuildingService buildingService, ColorConfiguration.ConsoleColors color) {
         while (true) {
-            System.out.println("List of all buildings: " + buildingService.count());
-            buildingService.findAll().forEach(System.out::println);
+            System.out.println(color.BLUE + "List of all buildings: " + buildingService.count() + color.RESET);
+            for(Building b : buildingService.findAll()) {
+                System.out.println(color.BLUE + "Building id " + b.getId() + " - Name: " + b.getName() + " - Address: " + b.getAddress() + color.RESET);
+            }
             try {
                 System.out.println("Select building to proceed (0 to exit):");
                 Long id = null;
@@ -276,7 +251,7 @@ public class Menu {
                 if (id == null) throw new Exception("Invalid input");
                 if (id == 0) break;
                 Building b = buildingService.findById(id);
-                System.out.println(color.BLUE + "Selected building " + b + color.RESET);
+                System.out.println(color.BLUE + "Selected building - Id: " + b.getId() + " - Name: " + b.getName() + " - City: " + b.getCity() + " - Address: " + b.getAddress() + color.RESET);
                 System.out.println("What do you want to do now?");
                 System.out.println("1-Edit building info 2-Delete building 0-Exit");
                 Integer opt = null;
@@ -286,28 +261,17 @@ public class Menu {
                 if (opt == 0) break;
                 switch (opt) {
                     case 1 -> {
-                        System.out.println("New building name (empty if no changes are required)");
-                        String name = scanner.nextLine();
-                        b.setName(name.isEmpty() ? b.getName() : name);
-                        System.out.println("New building address (empty if no changes are required)");
-                        String address = scanner.nextLine();
-                        b.setAddress(address.isEmpty() ? b.getAddress() : address);
-                        System.out.println("New building city (empty if no changes are required)");
-                        String city = scanner.nextLine();
-                        b.setCity(city.isEmpty() ? b.getCity() : city);
-                        Building updatedBuilding = buildingService.update(b);
-                        System.out.println(color.BLUE + "Building info updated: " + updatedBuilding + color.RESET);
+                        Operations.editBuilding(scanner, buildingService, b, color);
                     }
                     case 2 -> {
-                        buildingService.delete(b);
-                        System.out.println(color.BLUE + "Building deleted: " + b + color.RESET);
+                        Operations.deleteBuilding(buildingService, b, color);
                     }
                 }
                 return;
             } catch (NotFoundException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -315,8 +279,10 @@ public class Menu {
     public static void showStations(Scanner scanner, StationService
             stationService, ColorConfiguration.ConsoleColors color) {
         while (true) {
-            System.out.println("List of all stations: " + stationService.count());
-            stationService.findAll().forEach(System.out::println);
+            System.out.println(color.BLUE + "List of all stations: " + stationService.count() + color.RESET);
+            for(Station s : stationService.findAll()) {
+                System.out.println(color.BLUE + "Station id " + s.getId() + " - Code: " + s.getCode() + " - Type: " + s.getType() + " - Max occupants: " + s.getMaxOccupants() + color.RESET);
+            }
             try {
                 System.out.println("Select station to proceed (0 to exit):");
                 Long id = null;
@@ -325,7 +291,7 @@ public class Menu {
                 if (id == null) throw new Exception("Invalid input");
                 if (id == 0) break;
                 Station s = stationService.findById(id);
-                System.out.println(color.BLUE + "Selected station " + s + color.RESET);
+                System.out.println(color.BLUE + "Selected station - Id: " + s.getId() + " - Code: " + s.getCode() + " - Type: "+ s.getType() + " - Max occupants: " + s.getMaxOccupants() + color.RESET);
                 System.out.println("What do you want to do now?");
                 System.out.println("1-Edit station info 2-Delete station 0-Exit");
                 Integer opt = null;
@@ -335,39 +301,17 @@ public class Menu {
                 if (opt == 0) break;
                 switch (opt) {
                     case 1 -> {
-                        System.out.println("New station code (empty if no changes are required)");
-                        String code = scanner.nextLine();
-                        s.setCode(code.isEmpty() ? s.getCode() : code);
-                        System.out.println("New max occupants (empty if no changes are required)");
-                        Integer maxOccupants = null;
-                        maxOccupants = scanner.nextInt();
-                        scanner.nextLine();
-                        s.setMaxOccupants(maxOccupants==null ? s.getMaxOccupants() : maxOccupants);
-                        System.out.println("New station type 1-private 2-open space 3-meeting room (empty if no changes are required)");
-                        Integer typeInput = null;
-                        typeInput = scanner.nextInt();
-                        scanner.nextLine();
-                        Type type = null;
-                        switch (typeInput) {
-                            case 1 -> type = Type.PRIVATE;
-                            case 2 -> type = Type.OPENSPACE;
-                            case 3 -> type = Type.MEETING_ROOM;
-                            default -> System.out.println("Invalid input");
-                        }
-                        s.setType(type == null ? s.getType() : type);
-                        Station updatedStation = stationService.update(s);
-                        System.out.println(color.BLUE + "Station info updated: " + updatedStation + color.RESET);
+                        Operations.editStation(scanner, stationService, s, color);
                     }
                     case 2 -> {
-                        stationService.delete(s);
-                        System.out.println(color.BLUE + "Station deleted: " + s + color.RESET);
+                        Operations.deleteStation(stationService, s, color);
                     }
                 }
                 return;
             } catch (NotFoundException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -375,8 +319,10 @@ public class Menu {
     public static void showReservations(Scanner scanner, ReservationService
             reservationService, ColorConfiguration.ConsoleColors color) {
         while (true) {
-            System.out.println("List of all reservations: " + reservationService.count());
-            reservationService.findAll().forEach(System.out::println);
+            System.out.println(color.BLUE + "List of all reservations: " + reservationService.count() + color.RESET);
+            for(Reservation r : reservationService.findAll()) {
+                System.out.println(color.BLUE + "Reservation id " + r.getId() + " - Date: " + r.getDate() + " - User: " + r.getUser().getUsername() + " - Station: " + r.getStation().getCode() + color.RESET);
+            }
             try {
                 System.out.println("Select reservation to proceed (0 to exit):");
                 Long id = null;
@@ -385,7 +331,7 @@ public class Menu {
                 if (id == null) throw new Exception("Invalid input");
                 if (id == 0) break;
                 Reservation r = reservationService.findById(id);
-                System.out.println(color.BLUE + "Selected reservation " + r + color.RESET);
+                System.out.println(color.BLUE + "Selected reservation - Id: " + r.getId() + " - Date: " + r.getDate() + " - Station: " + r.getStation().getCode() + color.RESET);
                 System.out.println("What do you want to do now?");
                 System.out.println("1-Edit reservation date 2-Delete reservation 0-Exit");
                 Integer opt = null;
@@ -395,26 +341,17 @@ public class Menu {
                 if (opt == 0) break;
                 switch (opt) {
                     case 1 -> {
-                        System.out.println("New reservation date (empty if no changes are required)");
-                        String inputDate = scanner.nextLine();
-                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                        LocalDate date = LocalDate.parse(inputDate, inputFormatter);
-                        r.setDate(inputDate.isEmpty() ? r.getDate() : date);
-                        Reservation updatedReservation = reservationService.update(r);
-                        System.out.println(color.BLUE + "Reservation date updated: " + updatedReservation + color.RESET);
-                        return;
+                        Operations.editReservation(scanner, reservationService, r, color);
                     }
                     case 2 -> {
-                        reservationService.delete(r);
-                        System.out.println(color.BLUE + "Reservation deleted: " + r + color.RESET);
+                        Operations.deleteReservation(reservationService, r, color);
                     }
                 }
                 return;
             } catch (NotFoundException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> "+ e.getMessage() + color.RESET);
             }
         }
     }
@@ -440,11 +377,11 @@ public class Menu {
                     case 2 -> type = Type.OPENSPACE;
                     case 3 -> type = Type.MEETING_ROOM;
                     case 0 -> {
-                        System.out.println(color.RED + "Exiting..." + color.RESET);
+                        System.out.println(color.RED + "===> Exiting..." + color.RESET);
                         break mainLoop;
                     }
                     default -> {
-                        System.out.println(color.RED + "Invalid input. Please try again." + color.RESET);
+                        System.out.println(color.RED + "===> Invalid input. Please try again." + color.RESET);
                         continue;
                     }
                 }
@@ -455,7 +392,6 @@ public class Menu {
                 if (opt.equals("y")) {
                     System.out.println("Select station by code (0 to exit)");
                     String code = scanner.nextLine();
-                    ;
                     if (code.isEmpty()) throw new Exception("Invalid input");
                     if (code.equals("0")) break mainLoop;
                     Station s = stationService.findByCode(code);
@@ -464,7 +400,7 @@ public class Menu {
                 }
                 return;
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
         }
     }
@@ -479,12 +415,7 @@ public class Menu {
                 if (user.isEmpty()) throw new Exception("Invalid input");
                 User u = userService.findByEmailOrUsername(user, user);
                 System.out.println("In which date you want to book the station: (0 to exit)?");
-                String inputDate = scanner.nextLine();
-                if (inputDate.isEmpty()) throw new Exception("Invalid input");
-                if (inputDate.equals("0")) break;
-                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate date = LocalDate.parse(inputDate, inputFormatter);
+                LocalDate date = Operations.formatDate(scanner, color);
                 System.out.println("Insert number of partecipants (0 to exit):");
                 Integer partecipants = null;
                 partecipants = scanner.nextInt();
@@ -492,14 +423,102 @@ public class Menu {
                 if (partecipants == null) throw new Exception("Invalid input");
                 if (partecipants == 0) break;
                 Reservation r = reservationService.createNewReservation(u, station, date, partecipants);
-                System.out.println(color.BLUE + "=> Reservation saved successfully " + r + color.RESET);
+                System.out.println(color.GREEN + "===> Reservation saved successfully " + r + color.RESET);
                 return;
             } catch (NotFoundException | PastDateException e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
             } catch (Exception e) {
-                System.out.println(color.RED + e.getMessage() + color.RESET);
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
             }
 
+        }
+    }
+
+    public static void findReservations(Scanner scanner, UserService userService, ReservationService reservationService, ColorConfiguration.ConsoleColors color) {
+        while (true) {
+            try {
+                System.out.println("Insert username or email for user:");
+                String user = scanner.nextLine();
+                User u = userService.findByEmailOrUsername(user, user);
+                List<Reservation> userReservations = reservationService.findByUserOrderByDateDesc(u);
+                for(Reservation r : userReservations) {
+                    System.out.println(color.BLUE + "Reservation - Id: " + r.getId() + " - Date: " + r.getDate() + " - User: " + r.getUser().getUsername() + " - Station: " + r.getStation().getCode() + color.RESET);
+                }
+                System.out.println("Do you want to delete a reservation? y/n (0 to exit)");
+                String opt = scanner.nextLine();
+                if (opt.isEmpty()) throw new Exception("Invalid input");
+                if (opt.equals("0")) break;
+                if (opt.equals("y")) {
+                    System.out.println("Select reservation to delete (0 to exit):");
+                    Long id = null;
+                    id = scanner.nextLong();
+                    scanner.nextLine();
+                    if (id == null) throw new Exception("Invalid input");
+                    if (id == 0) break;
+                    Reservation r = reservationService.findById(id);
+                    reservationService.delete(r);
+                    System.out.println(color.GREEN + "=> Reservation deleted successfully " + r + color.RESET);
+                }
+                return;
+            } catch (NotFoundException e) {
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
+            } catch (Exception e) {
+                System.out.println(color.RED + "===> " +e.getMessage() + color.RESET);
+            }
+
+        }
+    }
+
+    public static void findByNameAndSurname(Scanner scanner, UserService userService, ReservationService reservationService, ColorConfiguration.ConsoleColors color) {
+        while (true) {
+            try {
+                System.out.println("Digit user first name:");
+                String firstName = scanner.nextLine();
+                System.out.println("Digit user last name:");
+                String lastName = scanner.nextLine();
+                if (firstName.isEmpty() || lastName.isEmpty()) throw new Exception("Invalid input");
+                List<User> users = userService.findByFirstNameAndLastName(firstName, lastName);
+                for(User u : users) {
+                    System.out.println(color.BLUE + "User id " + u.getId() + " - Username:" + u.getUsername() + " - Email: "+ u.getEmail() + " - First name: " + u.getFirstName() + " - Last name: " + u.getLastName() + color.RESET);
+                }
+                System.out.println("Select user (0 to exit):");
+                Long id = null;
+                id = scanner.nextLong();
+                scanner.nextLine();
+                if (id == null) throw new Exception("Invalid input");
+                if (id == 0) break;
+                User u = userService.findById(id);
+                for(Reservation r : reservationService.findByUserOrderByDateDesc(u)) {
+                    System.out.println(color.BLUE + "Reservation - Id: " + r.getId() + " - Date: " + r.getDate() + " - User: " + r.getUser().getUsername() + " - Station: " + r.getStation().getCode() + color.RESET);
+                }
+                System.out.println("What do you want to do now?");
+                System.out.println("1-Edit reservation 2-Delete reservation 0-Exit");
+                Integer opt = null;
+                opt = scanner.nextInt();
+                scanner.nextLine();
+                if (opt == null) throw new Exception("Invalid input");
+                if (opt == 0) break;
+                System.out.println("Select reservation: (0 to exit)");
+                Long resId = null;
+                id = scanner.nextLong();
+                scanner.nextLine();
+                if (id == null) throw new Exception("Invalid input");
+                if (id == 0) break;
+                Reservation r = reservationService.findById(id);
+                switch (opt) {
+                    case 1 -> {
+                        Operations.editReservation(scanner, reservationService, r, color);
+                    }
+                    case 2 -> {
+                        Operations.deleteReservation(reservationService, r, color);
+                    }
+                }
+                return;
+            } catch (NotFoundException e) {
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
+            } catch (Exception e) {
+                System.out.println(color.RED + "===> " + e.getMessage() + color.RESET);
+            }
         }
     }
 

@@ -93,7 +93,7 @@ public class StationService {
     }
 
     public List<Station> findByTypeAndCity(Type type, String city) throws NotFoundException {
-       List<Station> stations = stationRepo.findByTypeAndCity(type, city);
+       List<Station> stations = stationRepo.findByTypeAndCityIgnoreCase(type, city);
        if(stations.isEmpty()) {
            throw new NotFoundException("No stations founds for this type and city");
        }

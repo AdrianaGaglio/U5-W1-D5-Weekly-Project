@@ -18,15 +18,10 @@ public class BuildingRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         if(buildingService.count() == 0) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 15; i++) {
                 buildingService.createNewBuilding();
             }
         }
-
-        System.out.println();
-        System.out.println("Buildings list (total " + buildingService.count() + "):");
-        buildingService.findAll().forEach(System.out::println);
-        System.out.println();
 
     }
 }

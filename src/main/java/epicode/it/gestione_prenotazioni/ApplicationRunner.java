@@ -31,10 +31,10 @@ public class ApplicationRunner implements org.springframework.boot.ApplicationRu
 
         while(true) {
             try {
-                System.out.println("=== Main menu ===");
-                System.out.println("1- Admin menu");
-                System.out.println("2- User menu");
-                System.out.println("Select an option to proceed (0 to exit)");
+                System.out.println(consoleColors.YELLOW + "=== Main menu ==="  + consoleColors.RESET);
+                System.out.println(consoleColors.YELLOW + "1- Admin menu"  + consoleColors.RESET);
+                System.out.println(consoleColors.YELLOW + "2- User menu"  + consoleColors.RESET);
+                System.out.println(consoleColors.YELLOW + "Select an option to proceed (0 to exit)" + consoleColors.RESET);
                 Integer choice = null;
                 choice = scanner.nextInt();
                 scanner.nextLine();
@@ -49,10 +49,11 @@ public class ApplicationRunner implements org.springframework.boot.ApplicationRu
                 }
             } catch (Exception e) {
                 System.out.println(consoleColors.RED + e.getMessage() + consoleColors.RESET);
+            } finally {
+                scanner.close();
             }
         }
 
-
-
     }
+
 }

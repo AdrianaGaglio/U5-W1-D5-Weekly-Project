@@ -49,10 +49,5 @@ public class StationRunner implements ApplicationRunner {
             }
         }
 
-        System.out.println();
-        System.out.println("List of stations (total " + stationService.count() + "):");
-        stationService.findAll().forEach(System.out::println);
-        System.out.println();
-
     }
 }

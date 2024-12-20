@@ -17,13 +17,9 @@ public class UserRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         if (userService.count() == 0) {
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 10; i++) {
                 userService.generateUser();
             }
         }
-        System.out.println();
-        System.out.println("Users list (total " + userService.count() + "):");
-        userService.findAll().forEach(System.out::println);
-        System.out.println();
     }
 }

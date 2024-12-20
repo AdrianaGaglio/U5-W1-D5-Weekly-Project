@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface StationRepo extends JpaRepository<Station, Long> {
 
@@ -15,11 +14,12 @@ public interface StationRepo extends JpaRepository<Station, Long> {
 
     public List<Station> findByType(Type type);
 
-    @Query("SELECT s FROM Station s WHERE LOWER(s.building.city) = LOWER(:city)")
+    @Query("SELECT s FROM Station s WHERE LOWER(s.building.city) LIKE LOWER(CONCAT('%', :city, '%'))")
     public List<Station> findByCityIgnoreCase(@Param("city") String city);
 
-    @Query("SELECT s FROM Station s JOIN Building b ON s.building.id = b.id WHERE s.type = :type AND b.city = :city")
-    public List<Station> findByTypeAndCity(Type type, String city);
+    @Query("SELECT s FROM Station s JOIN s.building b WHERE s.type = :type AND LOWER(b.city) = LOWER(:city)")
+    public List<Station> findByTypeAndCityIgnoreCase(Type type, String city);
+
 
     public List<Station> findByBuilding(Building building);
 

@@ -46,8 +46,6 @@ public class ReservationRunner implements ApplicationRunner {
             } catch (NotAvailableException | MaxOccupantsException e) {
                 logger.error(e.getMessage());
             }
-
-
         }
     }
 }
